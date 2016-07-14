@@ -1,0 +1,170 @@
+html { 
+	background-color: #eee; 
+}
+body {
+	margin: 0; 
+	position: relative;  
+	min-width: 800px;
+}
+
+.wrapper { 
+	width: 800px; 
+	margin: 0 auto; 
+	position: relative; 
+}
+
+#filedWrap { 
+	position: relative; 
+	background: url("../img/boardInner.jpg") 0 0; 
+	background-size: 101%; 
+	margin: 0 auto; 
+	width: 430px;  
+	height: 405px; 
+	padding: 10px 10px 5px 15px;
+}
+
+#filedWrapOuter { 
+	background: url("../img/boardOuter.jpg") 0 0; 
+	background-size: 100%; 
+	position: relative; 
+	width: 455px; 
+	height: 420px; 
+	margin: 60px auto; 
+	padding: 10px; 
+}
+
+fieldset {
+	position: absolute;
+    top: 43px;
+    right: 0;
+    padding-right: 28px;
+    padding-left: 6px;
+}
+
+fieldset input[type=radio] {
+    position: absolute;
+    right: 3px;
+}
+
+fieldset input[type=radio]:nth-child(4) {
+	bottom: 11px;
+}
+
+#field { 
+	list-style-type: none; 
+	margin: 0; padding: 0; 
+	width: 450px; 
+	position: relative;
+}
+
+#modal {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    z-index: 9999;
+}
+
+#field li {
+    margin: 3px 3px 1px 0;
+    float: left;
+    width: 78px;
+    height: 73px;
+    font-size: 49px;
+    text-align: center;
+    padding: 8px;
+    padding-right: 20px;
+    padding-top: 15px;
+    background: url("../img/num.jpg") 0 0 no-repeat;
+    background-size: 91%;
+    color: black;
+    border: none;
+}
+
+#field li.droppable {
+	float: left;
+	position: relative;
+    background: none;
+} 
+
+.ui-state-default {
+	cursor: default;
+}
+
+.ui-state-default.draggable {
+	cursor: pointer;
+}
+
+#msg {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 4em;
+    font-weight: bold;
+    text-align: center;
+    margin-top: -105px;
+    color: #fff;
+    text-shadow: -1px 1px 0 #ddd, -2px 2px 0 #c8c8c8,
+                -3px 3px 0 #ccc, -4px 4px 0 #b8b8b8,
+                -4px 4px 0 #bbb, 0px 1px 1px rgba(0,0,0,.4),
+                0px 2px 2px rgba(0,0,0,.3),
+                -1px 3px 3px rgba(0,0,0,.2),
+                -1px 5px 5px rgba(0,0,0,.1),
+                -2px 8px 8px rgba(0,0,0,.1),
+                -2px 13px 13px rgba(0,0,0,.1);
+    //background: url("../img/win.gif") 0 -10px no-repeat;
+}
+
+
+#start {
+    position: absolute;
+    top: -1px;
+    right: 20px;
+    display: block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color: #2e3133;
+    padding: 10px 20px;
+    background: -moz-linear-gradient(
+        top,
+        #ffffff 0%,
+        #919191);
+    background: -webkit-gradient(
+        linear, left top, left bottom,
+        from(#ffffff),
+        to(#919191));
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    border: 1px solid #616161;
+    -moz-box-shadow:
+        0px 1px 3px rgba(000,000,000,0.5),
+        inset 0px 0px 1px rgba(255,255,255,1);
+    -webkit-box-shadow:
+        0px 1px 3px rgba(000,000,000,0.5),
+        inset 0px 0px 1px rgba(255,255,255,1);
+    box-shadow:
+        0px 1px 3px rgba(000,000,000,0.5),
+        inset 0px 0px 1px rgba(255,255,255,1);
+    text-shadow:
+        0px -1px 0px rgba(140,120,140,0.7),
+        0px 1px 0px rgba(255,255,255,0.3);
+    cursor: pointer;
+}
+
+#start:hover {
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed));
+    background:-moz-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+    background:-webkit-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+    background:-o-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+    background:-ms-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+    background:linear-gradient(to bottom, #dfdfdf 5%, #ededed 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed',GradientType=0);
+    background-color:#dfdfdf;
+}
+
+#moves {
+    position: absolute; 
+	width: 135px; 
+	top: 125px; 
+	right: -5px; 
+	font: 18px Arial; 
+	text-shadow: 3px 2px 4px rgba(0,0,0,0.5);
+}

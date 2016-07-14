@@ -1,0 +1,303 @@
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+
+        <link href="css/style.css" rel="stylesheet">
+
+        <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+        <script type="text/javascript" src="js/jquery-ui-1.11.2.custom/jquery-ui.min.js"></script>
+
+        <link href="js/jquery-ui-1.11.2.custom/jquery-ui.min.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="wrapper">
+            <div id="filedWrapOuter">
+                <div id="modal"></div>
+                <div id="filedWrap">
+                    <ul id="field"></ul>
+                </div>
+            </div>
+            <input type="button" value="Start game" id="start" /> <br/>
+            <fieldset>
+                <legend> Game type: </legend>
+                Button clicking: <input type="radio" name="game-type" value="click" checked><br>
+                Button dragging: <input type="radio" name="game-type" value="drag">
+            </fieldset>
+            <div id="moves" >Steps: <span></span></div>
+        </div>
+
+
+        <div id="printField"></div>
+        <div id="msg"></div>
+
+        <script>
+            $('#msg').text('');
+            $('#moves span').text(0);
+
+            var fields = [];
+            var gridStepX = 107;
+            var gridStepY = 100;
+            var moves = 0;
+            var game = false;
+
+            calcFields();
+            drawFields();
+
+            var baseArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0];
+            var droppableObj = $('#field li[number=0]');
+
+            $(function() {
+                if (window.localStorage) {
+                    if (localStorage.getItem('gameType')) {
+                        $('input[value=' + localStorage.getItem('gameType') + ']').attr('checked', 'checked');
+                    }
+                }
+
+                $(document).on('click', '#start', function() {
+                    $('#msg').text('');
+                    moves = 0;
+                    $('#moves span').text(moves);
+
+                    calcFields();
+                    shuffle(fields);
+                    drawFields();
+
+                    $('#modal').hide();
+
+                    if ($('input[type=radio]:checked').val() == 'click') {
+                        startGameWithClicking();
+                        localStorage.setItem('gameType', 'click');
+                    } else {
+                        startGameWithDragging();
+                        localStorage.setItem('gameType', 'drag');
+                    }
+                });
+            });
+
+
+            function startGameWithClicking() {
+                $(document).on('click', '#field .draggable.dx, #field .draggable.dy', function(evt) {
+                    if ($('input[type=radio]:checked').val() != 'click') return;
+
+                    evt.stopImmediatePropagation();
+
+                    var key = getKeyByVal( Number($(this).attr('number')) );
+
+                    if ($(this).hasClass('dx')) {
+                        swapInFields(key, (fields[key + 1] == 0) ? 1 : -1);
+                    } else if ($(this).hasClass('dy')) {
+                        swapInFields(key, (fields[key + 4] == 0) ? 4 : -4);
+                    }
+
+                    $(droppableObj).offset({top: $(droppableObj).offset().top + gridStepY});
+                    drawFields();
+                    $('#moves span').text(++moves);
+
+                    if (arrayСmp(baseArr, fields)) {
+                        showEndMessage();
+                    }
+                });
+            }
+
+            // А это для игры мышкой - двигать клеточки... ну или на тачскрине пальцем =)))
+            function startGameWithDragging() {
+                var draggableX, draggableY, draggableOffsetX, draggableOffsetY;
+
+                $(document).on('mouseover', '#field .draggable.dx', function(evt) {
+                    evt.stopImmediatePropagation();
+                    if ($('input[type=radio]:checked').val() == 'click') return;
+
+                    $(this).draggable({
+                        axis: "x",
+                        grid: [ gridStepX, gridStepY ],
+                        start: function(e, ui) {
+                            draggableX = ui.position.left;
+                            draggableOffsetX = ui.offset.left;
+                        },
+                        stop: function(e, ui) {
+                            if (ui.position.left == draggableX)
+                                return;
+
+                            var key = getKeyByVal( Number($(this).attr('number')) );
+
+                            if (ui.position.left < draggableX) {
+                                if (fields[key - 1] != 0) {
+                                    console.log('sorry, you can\'t go there...');
+                                    $(this).css('left', draggableX);
+                                } else {
+                                    console.log('you can go there...');
+
+                                    $(droppableObj).offset({left: $(droppableObj).offset().left + gridStepX});
+                                    swapInFields(key, -1);
+                                    drawFields();
+                                }
+                            } else {
+                                if (fields[key + 1] != 0) {
+                                    console.log('sorry, you can\'t go there...');
+                                    $(this).css('left', draggableX);
+                                } else {
+                                    console.log('you can go there...');
+
+                                    $(droppableObj).offset({left: $(droppableObj).offset().left - gridStepX});
+                                    swapInFields(key, 1);
+                                    drawFields();
+                                }
+                            }
+
+                            $('#moves span').text(++moves);
+                            if (arrayСmp(baseArr, fields)) {
+                                showEndMessage();
+                            }
+                        }
+                    });
+                });
+
+
+                $(document).on('mouseover', '#field .draggable.dy', function(evt) {
+                    evt.stopImmediatePropagation();
+                    if ($('input[type=radio]:checked').val() == 'click') return;
+
+                    $(this).draggable({
+                        axis: "y",
+                        grid: [ gridStepX, gridStepY ],
+                        start: function(e, ui) {
+                            draggableY = ui.position.top;
+                            draggableOffsetY = ui.offset.top;
+                        },
+                        stop: function(e, ui) {
+                            if (ui.position.top == draggableY)
+                                return;
+
+                            var key = getKeyByVal( Number($(this).attr('number')) );
+
+                            if (ui.position.top < draggableY) {
+                                if (fields[key - 4] != 0) {
+                                    console.log('sorry, you can\'t go there...');
+                                    $(this).css('top', draggableY);
+                                } else {
+                                    console.log('you can go there...');
+
+                                    $(droppableObj).offset({top: $(droppableObj).offset().top + gridStepY});
+                                    swapInFields(key, -4);
+                                    drawFields();
+                                }
+                            } else {
+                                if (fields[key + 4] != 0) {
+                                    console.log('sorry, you can\'t go there...');
+                                    $(this).css('top', draggableY);
+                                } else {
+                                    console.log('you can go there...');
+
+                                    $(droppableObj).offset({top: $(droppableObj).offset().top - gridStepY});
+                                    swapInFields(key, 4);
+                                    drawFields();
+                                }
+                            }
+
+                            $('#moves span').text(++moves);
+                            if (arrayСmp(baseArr, fields)) { $('#msg').html('<img src="img/win.gif" style="position: relative; top: 13px;" ><div> Сongratulations! </div> You win!!! :)</div>');   $('#modal').show(); }
+                        }
+                    });
+                });
+            }
+
+
+            function showEndMessage() {
+                $('#msg').html('<img src="img/win.gif" style="position: relative; top: 13px;" ><div> Сongratulations! </div> You win!!! :)</div>');
+                $('#modal').show();
+            }
+
+
+            function isSolvable(fields) {
+                for (var kDisorder = 0, i = 1, len = fields.length-1; i < len; i++)
+                    for (var j = i-1; j >= 0; j--) if (fields[j] > fields[i]) kDisorder++;
+
+                return !(kDisorder % 2);
+            }
+
+
+            function shuffle(o){ //v1.0
+                for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+
+                if (!isSolvable(o))
+                    shuffle(o);
+
+                return o;
+            }
+
+
+            function swapInFields(key, num) {
+                var fieldNum = key + num;
+                var tmp = fields[fieldNum];
+                fields[fieldNum] = fields[key];
+                fields[key] = tmp;
+            }
+
+
+            function getKeyByVal(value) {
+                for ( _key in fields ) {
+                    if (fields[_key] == value) {
+                        return Number(_key);
+                    }
+                }
+            }
+
+
+            function calcFields(elNum) {
+                elNum = (typeof elNum == 'undefined') ? 15 : elNum;
+                var num = 0;
+                for (var i = 0; i < 16; ++i) {
+                    if (elNum != i) num++;
+                    fields[i] = num;
+                }
+                fields[elNum] = 0;
+            }
+
+
+            function drawFields() {
+                var html = '';
+                var num = 0;
+                for (var i = 0; i < 16; ++i) {
+                    if (fields[i] != 0) num++;
+
+                    if (fields[i] == 0)
+                        html += drawLI('ui-state-default droppable', 0);
+                    else if ( (fields[i + 1] == 0) || (fields[i - 1] == 0 && i % 4 != 0) )
+                        html += drawLI('ui-state-default draggable dx', fields[i]);
+                    else if ( fields[i + 4] == 0 || fields[i - 4] == 0)
+                        html += drawLI('ui-state-default draggable dy', fields[i]);
+                    else
+                        html += drawLI('ui-state-default', fields[i]);
+                }
+
+                $('ul#field').html(html);
+            }
+
+
+            function drawLI(classStr, number) {
+                return ' <li class="' + classStr + '"  number="' + number + '">' + (number == 0 ? '' : number) + '</li>';
+            }
+
+
+            function printArr(arr) {
+                var str = '';
+                for ( key in arr ) {
+                    str += key + ' - ' + arr[key] + '<br/>';
+                }
+            }
+
+
+            function arrayСmp(a, b) {
+                // if lengths are different, arrays aren't equal
+                if(a.length != b.length)
+                    return false;
+
+                for(i = 0; i < a.length; i++)
+                    if(a[i] != b[i])
+                        return false;
+
+                return true;
+            }
+        </script>
+    </body>
+</html>
